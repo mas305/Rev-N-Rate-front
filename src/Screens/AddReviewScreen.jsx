@@ -12,6 +12,7 @@ import PrimaryButton from "../Componants/PrimaryButton";
 import useBrands from "../Context/BrandsContext";
 import { useLocation, useParams } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
+import { motion } from "framer-motion"; // Import Framer Motion for animations
 
 function AddReviewScreen() {
   const { userId } = useContext(AuthContext);
@@ -20,12 +21,13 @@ function AddReviewScreen() {
   const [comments, setComments] = useState("");
   const [quality, setQuality] = useState(0);
   const [service, setService] = useState(0);
-  const [reviewerId, setReviewerId] = useState(userId.reviewerId);
+  const [reviewerId] = useState(userId.reviewerId); // userId from AuthContext
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { brandId } = useParams();
   const location = useLocation();
-  const { brand } = location.state || {}; // Get brand data from state
+  const { brand } = location.state || {}; // Fetch brand data from route state
 
+  // Handle photo upload and preview generation
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -41,10 +43,12 @@ function AddReviewScreen() {
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Disable the submit button
+    setIsSubmitting(true);
 
+    // Validate form input
     if (!comments.trim()) {
       Swal.fire({
         icon: "error",
@@ -55,14 +59,15 @@ function AddReviewScreen() {
       return;
     }
 
+    // Prepare form data for submission
     const formData = new FormData();
     formData.append("comments", comments);
     formData.append("quality", quality);
     formData.append("service", service);
     formData.append("reviewerId", reviewerId);
-    formData.append("brandLogo", brand ? brand.logo : ""); // Append the brand logo
+    formData.append("brandLogo", brand ? brand.logo : "");
     if (photo) {
-      formData.append("photos", photo); // Append the photo file
+      formData.append("photos", photo);
     }
 
     try {
@@ -84,22 +89,27 @@ function AddReviewScreen() {
         text: "Your review has been successfully submitted!",
       });
     } catch (error) {
-      console.error("There was an error submitting the review:", error);
       Swal.fire({
         icon: "error",
         title: "Submission Failed",
         text: error.response.data.Message || "An error occurred.",
       });
     } finally {
-      setIsSubmitting(false); // Re-enable the submit button
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="bg-white">
       <Header />
-      <div className="mx-24 mt-24 ">
-        <div className="w-full py-12 px-36 h-60 ">
+      <div className="mx-24 mt-24">
+        {/* Animated banner using Framer Motion */}
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="w-full py-12 px-36 h-60"
+        >
           <div
             className="w-full h-full rounded-2xl text-center flex justify-center items-center text-4xl font-bold"
             style={{
@@ -110,14 +120,19 @@ function AddReviewScreen() {
           >
             <p>Share Your Experience</p>
           </div>
-        </div>
+        </motion.div>
 
         <hr className="h-0.5 my-2 bg-black" />
 
-        {/* Content */}
-        <div className="w-full h-full ">
+        {/* Form Content with Motion Wrapper */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="w-full h-full"
+        >
           <div className="flex flex-col justify-center gap-8">
-            {/* Rate */}
+            {/* Quality & Service Rating */}
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12">
               <div className="flex flex-col gap-8">
                 <Heading className="text-start" value1="Quality" />
@@ -142,49 +157,45 @@ function AddReviewScreen() {
                 />
               </div>
             </div>
-            {/* Recommend */}
-            <div>
-              <form action="#">
-                <Title
-                  className="text-3xl font-semibold mt-9"
-                  title="Would you recommend the product to your friends?"
-                />
-                <input
-                  className="w-4 h-4"
-                  type="radio"
-                  id="OfCourse"
-                  name="recommendation"
-                  value="Of course!"
-                />
-                <label className="text-xl mx-3" htmlFor="OfCourse">
-                  Of Course!
+
+            {/* Recommend Section */}
+            <form action="#">
+              <Title
+                className="text-3xl font-semibold mt-9"
+                title="Would you recommend the product to your friends?"
+              />
+              <div className="my-3">
+                <label className="text-xl">
+                  <input
+                    className="w-4 h-4"
+                    type="radio"
+                    name="recommendation"
+                    value="Of course!"
+                  />
+                  <span className="mx-3">Of Course!</span>
                 </label>
-                <br />
-                <input
-                  className="w-4 h-4"
-                  type="radio"
-                  id="never"
-                  name="recommendation"
-                  value="never"
-                  
-                />
-                <label className="text-xl mx-3" htmlFor="never">
-                  Never
+                <label className="text-xl">
+                  <input
+                    className="w-4 h-4"
+                    type="radio"
+                    name="recommendation"
+                    value="Never"
+                  />
+                  <span className="mx-3">Never</span>
                 </label>
-                <br />
-                <input
-                  className="w-4 h-4"
-                  type="radio"
-                  id="maybe"
-                  name="recommendation"
-                  value="Maybe."
-                />
-                <label className="text-xl mx-3" htmlFor="maybe">
-                  Maybe.
+                <label className="text-xl">
+                  <input
+                    className="w-4 h-4"
+                    type="radio"
+                    name="recommendation"
+                    value="Maybe."
+                  />
+                  <span className="mx-3">Maybe.</span>
                 </label>
-              </form>
-            </div>
-            {/* Review */}
+              </div>
+            </form>
+
+            {/* Review Section */}
             <div>
               <Title className="text-3xl font-semibold mt-9" title="Review" />
               <textarea
@@ -194,13 +205,18 @@ function AddReviewScreen() {
                 rows="4"
                 maxLength={200}
                 placeholder="Write your opinion..."
-                cols="50"
                 value={comments}
                 onChange={(e) => setComments(e.target.value)}
               />
             </div>
-            {/* Photo & Submit */}
-            <div className="flex flex-col items-center justify-center p-4">
+
+            {/* Photo Upload & Submit Button with Motion */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.2 }}
+              className="flex flex-col items-center justify-center p-4"
+            >
               <form onSubmit={handleSubmit} className="w-full max-w-md">
                 <Title
                   className="text-3xl font-semibold mt-9"
@@ -215,13 +231,18 @@ function AddReviewScreen() {
                   className="my-4"
                 />
                 {photoPreview && (
-                  <div className="mb-4">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="mb-4"
+                  >
                     <img
                       src={photoPreview}
                       alt="Selected"
                       className="rounded-xl w-full h-auto"
                     />
-                  </div>
+                  </motion.div>
                 )}
                 <div className="flex justify-center w-full">
                   <button
@@ -229,15 +250,15 @@ function AddReviewScreen() {
                     className={`bg-orange-500 text-white font-bold py-2 px-4 rounded-lg mt-8 w-full ${
                       isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                     }`}
-                    disabled={isSubmitting} // Disable button when submitting
+                    disabled={isSubmitting}
                   >
                     Submit Review
                   </button>
                 </div>
               </form>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
       <Footer />
     </div>
