@@ -9,6 +9,15 @@ import GoldenStar from "../../assets/star.png";
 import WhiteStar from "../../assets/star_white.png";
 import axios from "axios";
 import { AuthContext } from "../../Context/AuthContext";
+import {
+  differenceInYears,
+  differenceInMonths,
+  differenceInWeeks,
+  differenceInDays,
+  differenceInHours,
+  differenceInMinutes,
+  differenceInSeconds,
+} from "date-fns";
 
 function ReviewCard(props) {
   const [inView, setInView] = useState(false);
@@ -21,7 +30,7 @@ function ReviewCard(props) {
   const navigate = useNavigate(); // Initialize the navigate function
   const ref = useRef(null);
   const { userId } = useContext(AuthContext);
-  // // console.log(props.brandImage); 
+  // // console.log(props.brandImage);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -61,11 +70,33 @@ function ReviewCard(props) {
   const goldenStars = Array(Math.min(roundedRating, totalStars)).fill(true);
   const whiteStars = Array(Math.max(totalStars - roundedRating, 0)).fill(false);
 
-  // Format date using date-fns
-  const formattedDate = formatDistanceToNow(parseISO(props.date), {
-    addSuffix: true,
-  });
+  const getFormattedDate = (date) => {
+    const now = new Date();
+    const parsedDate = parseISO(date);
 
+    const years = differenceInYears(now, parsedDate);
+    if (years > 0) return `${years} year${years > 1 ? "s" : ""}`;
+
+    const months = differenceInMonths(now, parsedDate);
+    if (months > 0) return `${months} month${months > 1 ? "s" : ""}`;
+
+    const weeks = differenceInWeeks(now, parsedDate);
+    if (weeks > 0) return `${weeks} week${weeks > 1 ? "s" : ""}`;
+
+    const days = differenceInDays(now, parsedDate);
+    if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
+
+    const hours = differenceInHours(now, parsedDate);
+    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
+
+    const minutes = differenceInMinutes(now, parsedDate);
+    if (minutes > 0) return `${minutes} min`;
+
+    const seconds = differenceInSeconds(now, parsedDate);
+    return `${seconds} sec`;
+  };
+  // Format date using date-fns
+  const formattedDate = getFormattedDate(props.date);
   const toggleModal = () => {
     setModalOpen(!isModalOpen);
   };
@@ -180,7 +211,10 @@ function ReviewCard(props) {
       >
         <div>
           <div className="absolute w-16 h-16 top-4 left-1/3 rounded-full bg-slate-100">
-            <img src={props.brandImage} className="w-16 h-16 rounded-full"></img>
+            <img
+              src={props.brandImage}
+              className="w-16 h-16 rounded-full"
+            ></img>
           </div>
           <div className="absolute w-16 h-16 top-4 right-1/3 rounded-full bg-slate-100">
             <img

@@ -6,9 +6,19 @@ import { formatDistanceToNow, parseISO } from "date-fns";
 import { Dialog } from "@headlessui/react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import GoldenStar from "../../assets/star.png";
+import user from "../../assets/user.png";
 import WhiteStar from "../../assets/star_white.png";
 import axios from "axios";
 import { AuthContext } from "../../Context/AuthContext";
+import {
+  differenceInYears,
+  differenceInMonths,
+  differenceInWeeks,
+  differenceInDays,
+  differenceInHours,
+  differenceInMinutes,
+  differenceInSeconds,
+} from "date-fns";
 
 function BrandReviewCard(props) {
   const [inView, setInView] = useState(false);
@@ -22,7 +32,6 @@ function BrandReviewCard(props) {
   const ref = useRef(null);
   const { userId } = useContext(AuthContext);
   // console.log(userId);
-  
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -62,10 +71,33 @@ function BrandReviewCard(props) {
   const goldenStars = Array(Math.min(roundedRating, totalStars)).fill(true);
   const whiteStars = Array(Math.max(totalStars - roundedRating, 0)).fill(false);
 
+  const getFormattedDate = (date) => {
+    const now = new Date();
+    const parsedDate = parseISO(date);
+
+    const years = differenceInYears(now, parsedDate);
+    if (years > 0) return `${years} year${years > 1 ? "s" : ""}`;
+
+    const months = differenceInMonths(now, parsedDate);
+    if (months > 0) return `${months} month${months > 1 ? "s" : ""}`;
+
+    const weeks = differenceInWeeks(now, parsedDate);
+    if (weeks > 0) return `${weeks} week${weeks > 1 ? "s" : ""}`;
+
+    const days = differenceInDays(now, parsedDate);
+    if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
+
+    const hours = differenceInHours(now, parsedDate);
+    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
+
+    const minutes = differenceInMinutes(now, parsedDate);
+    if (minutes > 0) return `${minutes} min`;
+
+    const seconds = differenceInSeconds(now, parsedDate);
+    return `${seconds} sec`;
+  };
   // Format date using date-fns
-  const formattedDate = formatDistanceToNow(parseISO(props.date), {
-    addSuffix: true,
-  });
+  const formattedDate = getFormattedDate(props.date);
 
   const toggleModal = () => {
     setModalOpen(!isModalOpen);
@@ -180,14 +212,16 @@ function BrandReviewCard(props) {
         className="relative w-full flex justify-center bg-orange-500 rounded-3xl cursor-pointer"
         onClick={toggleModal}
       >
-          <div
-            className="absolute w-16 h-16 top-4 rounded-full bg-white"
-            style={{
-              backgroundImage: `url(${userId.profilePic})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          ></div>
+        <div
+          className="absolute w-16 h-16 top-4 rounded-full bg-white"
+          style={{
+            backgroundImage: `url(${
+              userId && userId.profilePic ? userId.profilePic : user
+            })`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        ></div>
 
         <div className="w-full flex flex-col m-6 mt-12 p-2 justify-between items-center text-center bg-slate-100 rounded-3xl gap-4">
           <h3 className="font-bold flex mt-7">{props.brand}</h3>
@@ -249,16 +283,17 @@ function BrandReviewCard(props) {
                 <span className="sr-only">Close modal</span>
               </button>
             </Dialog.Title>
-            <div>
+            <div className="flex justify-center">
               <div
-                className="absolute w-16 h-16 top-4 left-1/2 rounded-full bg-black"
+                className="absolute w-16 h-16 top-4 rounded-full bg-white"
                 style={{
-                  backgroundImage: `url(${userId.profilePic})`,
+                  backgroundImage: `url(${
+                    userId && userId.profilePic ? userId.profilePic : user
+                  })`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
               ></div>
-              
             </div>
 
             <div className="p-4 md:p-5 space-y-4 bg-slate-100 rounded-xl">
@@ -271,7 +306,7 @@ function BrandReviewCard(props) {
                   Service: {props.service || "N/A"}
                 </p>
                 <p className="text-base leading-relaxed text-orange-500 font-bold">
-                  Rating: {props.rete || "No rating"}
+                  Rating: {props.rate || "No rating"}
                 </p>
               </div>
               {/* Like and Dislike Buttons */}

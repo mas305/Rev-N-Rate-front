@@ -9,6 +9,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import SearchBar from "../Componants/SearchBar";
 import userphoto from "../assets/user.png";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const navigation = [
   { name: "Product", href: "#" },
@@ -24,6 +25,13 @@ function Header() {
 
   const { userId } = useContext(AuthContext);
   // // console.log(userId);
+
+  const navigate = useNavigate();
+
+  // Function to handle navigation
+  const handleNavigation = (path) => {
+    navigate(path); // This will navigate to the given path
+  };
 
   useEffect(() => {
     const fetchReviewerReviews = async () => {
@@ -75,17 +83,7 @@ function Header() {
         <div className="hidden w-96 justify-center lg:flex">
           <SearchBar />
         </div>
-        <div className="hidden ">
-          {navigation.map((item) => (
-            <a
-              key={item.name}
-              href={item.href}
-              className="text-sm font-semibold leading-6 text-white p-2 bg-orange-400 rounded-lg"
-            >
-              {item.name}
-            </a>
-          ))}
-        </div>
+
         <div className="hidden w-auto lg:flex lg:flex-1 lg:justify-end">
           {userId ? (
             <Link to={"/userProfile"}>
@@ -129,15 +127,38 @@ function Header() {
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-gray-500/10">
               <div className="space-y-2 py-6">
-                {navigation.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                  >
-                    {item.name}
-                  </a>
-                ))}
+                <ul
+                  className="py-2 text-sm text-gray-700 dark:text-gray-200"
+                  aria-labelledby="dropdown-button"
+                >
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => handleNavigation("/categories")}
+                      className="inline-flex w-full px-4 py-2 text-black font-semibold rounded-lg hover:bg-gray-100 dark:hover:bg-orange-300 dark:hover:text-white"
+                    >
+                      Categories
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => handleNavigation("/reviews")}
+                      className="inline-flex w-full px-4 py-2 text-black font-semibold rounded-lg hover:bg-gray-100 dark:hover:bg-orange-300 dark:hover:text-white"
+                    >
+                      Reviews
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => handleNavigation("/offers")}
+                      className="inline-flex w-full px-4 py-2 text-black font-semibold rounded-lg hover:bg-gray-100 dark:hover:bg-orange-300 dark:hover:text-white"
+                    >
+                      Offers
+                    </button>
+                  </li>
+                </ul>
               </div>
               <div className="py-6">
                 {userId ? (
